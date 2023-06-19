@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.dhatim.fastexcel.reader.Cell;
@@ -67,13 +69,38 @@ public class DbLoad {
     }
 
 
+    public static List<String> fix_header(List<String> header){
+        List<String> final_list = new ArrayList<>();
+        Set<String> seen_list = new HashSet<>();
+
+        for (String item: header){
+            if (!seen_list.contains(item)){
+                seen_list.add(item);
+                final_list.add(item);
+            }
+            else{
+                String new_item = item + "_1";
+                int suffix = 1;
+                while (seen_list.contains(new_item)){
+                    suffix = Integer.parseInt(new_item.split("_")[-1])+1;
+                    new_item = String.format("%s_%s",new_item.split("_")[0],suffix);
+                }
+                seen_list.add(new_item);
+                final_list.add(new_item);
+            }
+        }
+        return final_list;
+    }
+
+
     public static void writeToDB(String filepath, String dbpath, 
                                 List<List<String>> data ) throws SQLException, ClassNotFoundException{
 
         String filename = filepath.substring(filepath.lastIndexOf('/') + 1).split("\\.", 2)[0].replace("-","_");
         List<String> header = data.get(0);
 		List<List<String>> colvals = data.subList(1, data.size());
-        header = header.stream().map(e -> e.replace(" ","_").toUpperCase()).toList(); 
+        header = header.stream().map(e -> e.trim().replace(" ","_").toUpperCase()).toList(); 
+        header = fix_header(header);        
     
         Class.forName("org.sqlite.JDBC");
         var conn = DriverManager.getConnection("jdbc:sqlite:"+dbpath);

@@ -135,7 +135,7 @@ public class AppFrame extends JFrame  {
         dbLabel.setLocation(100, 180);
 
         dbField = new JTextField();
-        dbField.setText("test.db");
+        dbField.setText("Test.db");
         dbField.setFont(new Font("Arial", Font.PLAIN, 20));
         dbField.setSize(190, 30);
         dbField.setLocation(250, 180);
