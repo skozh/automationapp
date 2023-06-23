@@ -20,9 +20,9 @@ public class AppFrame extends JFrame  {
 
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
     private Container contentPanel;
-    private JLabel title, inputLabel, outputLabel, dbLabel, busyLabel;
-    private JTextField inputFolder, outputFolder, dbField;
-    private JButton inputButton, outputButton, submitButton;
+    private JLabel title, inputLabel, outputLabel, dbLabel, busyLabel, title2, inputLabel2, outputLabel2 ,dbLabel2;
+    private JTextField inputFolder, outputFolder, dbField, inputFolder2, outputFolder2, dbField2;
+    private JButton inputButton, outputButton, submitButton, inputButton2, outputButton2, dbButton,submitButton2;
     private JRadioButton excelOption, csvOption;
     private ImageIcon redIcon;
 
@@ -34,6 +34,8 @@ public class AppFrame extends JFrame  {
 
         contentPanel = getContentPane();
         contentPanel.setLayout(null);
+
+        /* DB Load Frame */
 
         title = new JLabel("LOAD DB");
         title.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -147,7 +149,7 @@ public class AppFrame extends JFrame  {
 
         busyLabel = new JLabel(redIcon);
         busyLabel.setSize(100, 100);
-        busyLabel.setLocation(450, 220);
+        busyLabel.setLocation(450, 230);
         busyLabel.setVisible(false);
         contentPanel.add(busyLabel);
 
@@ -155,16 +157,17 @@ public class AppFrame extends JFrame  {
         submitButton.setText("SUBMIT");
         submitButton.setFont(new Font("Arial", Font.PLAIN, 20));
         submitButton.setSize(120, 30);
-        submitButton.setLocation(200, 220);
+        submitButton.setLocation(200, 230);
         submitButton.addActionListener((arg0) ->{
             if (inputFolder.getText().isBlank() || outputFolder.getText().isBlank() || dbField.getText().isBlank()){
                 JOptionPane.showMessageDialog(this, "Enter all the fields");
             }
             else{
                 int result = -1;
-                String inputpath = inputFolder.getText();     
+                String inputpath = inputFolder.getText(); 
+                String outputpath = outputFolder.getText();    
                 String dbname = dbField.getText();
-                String dbpath = new File(inputpath, dbname).getAbsolutePath();
+                String dbpath = new File(outputpath, dbname).getAbsolutePath();
                 File dir = new File(inputpath);
                 if (excelOption.isSelected()){
                     File[] files = dir.listFiles((d, name)-> name.endsWith(".xlsx"));
@@ -195,17 +198,142 @@ public class AppFrame extends JFrame  {
             } 
         });
         contentPanel.add(submitButton);
+
+
+        /* Test Cycle Frame */
+
+        title2 = new JLabel("RUN TESTS");
+        title2.setFont(new Font("Arial", Font.PLAIN, 20));
+        title2.setSize(300, 30);
+        title2.setLocation(200, 300);
+        contentPanel.add(title2);
+
+        inputLabel2 = new JLabel("Input SQL(csv):");
+        inputLabel2.setFont(new Font("Arial", Font.PLAIN, 20));
+        inputLabel2.setSize(150, 20);
+        inputLabel2.setLocation(100, 350);
+
+        inputFolder2 = new JTextField("");
+        inputFolder2.setSize(190, 30);
+        inputFolder2.setLocation(250, 350);
+
+        inputButton2 = new JButton();
+        inputButton2.setText("select");
+        inputButton2.setSize(80, 30);
+        inputButton2.setLocation(450, 350);
+        inputButton2.addActionListener((arg0) ->{
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            int option = fileChooser.showOpenDialog(contentPanel);
+            if(option == JFileChooser.APPROVE_OPTION){
+               File file = fileChooser.getSelectedFile();
+               inputFolder2.setText(file.getAbsolutePath());
+            }else{
+               inputFolder2.setText("");
+            }
+        });
+        contentPanel.add(inputLabel2);
+        contentPanel.add(inputFolder2);
+        contentPanel.add(inputButton2);
+
+
+        outputLabel2 = new JLabel("Output Folder:");
+        outputLabel2.setFont(new Font("Arial", Font.PLAIN, 20));
+        outputLabel2.setSize(150, 20);
+        outputLabel2.setLocation(100, 400);
+
+        outputFolder2 = new JTextField("");
+        outputFolder2.setSize(190, 30);
+        outputFolder2.setLocation(250, 400);
+
+        outputButton2 = new JButton();
+        outputButton2.setText("select");
+        outputButton2.setSize(80, 30);
+        outputButton2.setLocation(450, 400);
+        outputButton2.addActionListener((arg0) ->{
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int option = fileChooser.showOpenDialog(contentPanel);
+            if(option == JFileChooser.APPROVE_OPTION){
+               File file = fileChooser.getSelectedFile();
+               outputFolder2.setText(file.getAbsolutePath());
+            }else{
+               outputFolder2.setText("");
+            }
+        });
+
+        contentPanel.add(outputLabel2);
+        contentPanel.add(outputButton2);
+        contentPanel.add(outputFolder2);
+
+
+
+        dbLabel2 = new JLabel("DB Path:");
+        dbLabel2.setFont(new Font("Arial", Font.PLAIN, 20));
+        dbLabel2.setSize(150, 20);
+        dbLabel2.setLocation(100, 450);
+
+        dbField2 = new JTextField("");
+        dbField2.setSize(190, 30);
+        dbField2.setLocation(250, 450);
+
+        dbButton = new JButton();
+        dbButton.setText("select");
+        dbButton.setSize(80, 30);
+        dbButton.setLocation(450, 450);
+        dbButton.addActionListener((arg0) ->{
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            int option = fileChooser.showOpenDialog(contentPanel);
+            if(option == JFileChooser.APPROVE_OPTION){
+                File file = fileChooser.getSelectedFile();
+                dbField2.setText(file.getAbsolutePath());
+            }else{
+                dbField2.setText("");
+            }
+        });
+        contentPanel.add(dbLabel2);
+        contentPanel.add(dbField2);
+        contentPanel.add(dbButton);
+
+
+        submitButton2 = new JButton();
+        submitButton2.setText("SUBMIT");
+        submitButton2.setFont(new Font("Arial", Font.PLAIN, 20));
+        submitButton2.setSize(120, 30);
+        submitButton2.setLocation(200, 500);
+        submitButton2.addActionListener((arg0) ->{
+            if (inputFolder2.getText().isBlank() || dbField2.getText().isBlank() || outputFolder2.getText().isBlank()){
+                JOptionPane.showMessageDialog(this, "Enter all the fields");
+            }
+            else{
+                int result = -1;
+                String inputpath = inputFolder2.getText(); 
+                String outputfolder = outputFolder2.getText();    
+                String dbpath = dbField2.getText();
+                File file = new File(inputpath);
+                system_offline();
+                result = DbRead.run_queries(file, outputfolder, dbpath);
+                system_online();
+                if (result >= 0){
+                    JOptionPane.showMessageDialog(this, "Action Completed");
+                }
+            } 
+        });
+        contentPanel.add(submitButton2);
         setVisible(true);
     }
 
     protected void system_online(){
         submitButton.setEnabled(true);
+        submitButton2.setEnabled(true);
         busyLabel.setVisible(false);
     }
 
     protected void system_offline(){
         busyLabel.setVisible(true);
         submitButton.setEnabled(false);
+        submitButton2.setEnabled(false);
     }
 
     protected ImageIcon createImageIcon(String path,
