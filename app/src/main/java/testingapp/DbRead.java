@@ -19,7 +19,8 @@ public class DbRead {
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
     
     public static int run_queries(File file, String outputfolder, String dbpath, char delimiter) {
-
+        
+        int result = 1;
         try{
             Class.forName("org.sqlite.JDBC");
             var conn = DriverManager.getConnection("jdbc:sqlite:"+dbpath);
@@ -27,7 +28,7 @@ public class DbRead {
 
             Scanner sqlReader = new Scanner(file);
             while (sqlReader.hasNextLine()) {
-                String[] data = sqlReader.nextLine().split(""+delimiter);
+                String[] data = sqlReader.nextLine().split("\\"+delimiter);
                 String rulename = data[0];
                 File outputFile = new File(outputfolder, rulename+".csv");
                 FileWriter filewriter = new FileWriter(outputFile);
@@ -36,17 +37,28 @@ public class DbRead {
                                                     CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                                                     CSVWriter.DEFAULT_LINE_END);
                 logger.info(String.format("Executing %s", rulename));
-                ResultSet rs = stmt.executeQuery(data[1].trim());
-                writer.writeAll(rs, true);
+                try{
+                    ResultSet rs = stmt.executeQuery(data[1].trim());
+                    writer.writeAll(rs, true);
+
+                }
+                catch (SQLException err){
+                    logger.error(String.format("Check the query %s",rulename),err);
+                    result = 0;
+                }
+                catch (IndexOutOfBoundsException err){
+                    logger.error("Check the query file and make sure delimiter is correct!", err);
+                    result = 0;
+                }
                 writer.close();
                 filewriter.close();
             }
             sqlReader.close();
         }
-        catch (IOException | SQLException | ClassNotFoundException err) {
+        catch (Exception err) {
             logger.error(err.getMessage());
-            return 1;
+            result = 0;
         }
-        return 0;
+        return result;
     }
 }
