@@ -97,7 +97,9 @@ public class DbLoad {
     public static void writeToDB(String filepath, String dbpath, 
                                 List<List<String>> data ) throws SQLException, ClassNotFoundException{
 
-        String filename = filepath.substring(filepath.lastIndexOf('/') + 1).split("\\.", 2)[0].replace("-","_");
+        File fpath = new File(filepath);
+        String filename = fpath.getName().split("\\.", 2)[0].replace("-","_");
+
         List<String> header = data.get(0);
 		List<List<String>> colvals = data.subList(1, data.size());
         header = header.stream().map(e -> e.trim().replace(" ","_").toUpperCase()).toList(); 
