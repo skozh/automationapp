@@ -18,9 +18,8 @@ public class DbRead {
 
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
     
-    public static int run_queries(File file, String outputfolder, String dbpath) {
+    public static int run_queries(File file, String outputfolder, String dbpath, char delimiter) {
 
-        //æ
         try{
             Class.forName("org.sqlite.JDBC");
             var conn = DriverManager.getConnection("jdbc:sqlite:"+dbpath);
@@ -28,11 +27,11 @@ public class DbRead {
 
             Scanner sqlReader = new Scanner(file);
             while (sqlReader.hasNextLine()) {
-                String[] data = sqlReader.nextLine().split("æ");
+                String[] data = sqlReader.nextLine().split(""+delimiter);
                 String rulename = data[0];
                 File outputFile = new File(outputfolder, rulename+".csv");
                 FileWriter filewriter = new FileWriter(outputFile);
-                CSVWriter writer = new CSVWriter(filewriter, 'æ',
+                CSVWriter writer = new CSVWriter(filewriter, delimiter,
                                                     CSVWriter.NO_QUOTE_CHARACTER,
                                                     CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                                                     CSVWriter.DEFAULT_LINE_END);

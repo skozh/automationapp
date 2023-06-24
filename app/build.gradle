@@ -26,10 +26,9 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'org.dhatim:fastexcel-reader:0.12.15'
 	implementation 'org.xerial:sqlite-jdbc:3.42.0.0'
+    
     implementation 'com.opencsv:opencsv:5.7.1'
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     implementation 'org.slf4j:slf4j-api:2.0.7'
-    // https://mvnrepository.com/artifact/ch.qos.logback/logback-core
     implementation 'ch.qos.logback:logback-core:1.4.8'
 }
 

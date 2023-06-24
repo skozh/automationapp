@@ -21,7 +21,7 @@ public class AppFrame extends JFrame  {
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
     private Container contentPanel;
     private JLabel title, inputLabel, outputLabel, dbLabel, busyLabel, title2, inputLabel2, outputLabel2 ,dbLabel2;
-    private JTextField inputFolder, outputFolder, dbField, inputFolder2, outputFolder2, dbField2;
+    private JTextField inputFolder, outputFolder, dbField, inputFolder2, outputFolder2, dbField2, delField, delField2;
     private JButton inputButton, outputButton, submitButton, inputButton2, outputButton2, dbButton,submitButton2;
     private JRadioButton excelOption, csvOption;
     private ImageIcon redIcon;
@@ -68,6 +68,10 @@ public class AppFrame extends JFrame  {
             }
         });
 
+        delField = new JTextField("~");
+        delField.setSize(30, 30);
+        delField.setLocation(700, 80);
+
         excelOption = new JRadioButton();
         excelOption.setText("excel");
         excelOption.setSize(70,30);
@@ -75,9 +79,11 @@ public class AppFrame extends JFrame  {
         excelOption.addActionListener((arg0) ->{
             if(excelOption.isSelected()){
                 csvOption.setSelected(false);
+                delField.setVisible(false);
             }
             else{
                 csvOption.setSelected(true);
+                delField.setVisible(true);
             }
         });
         csvOption = new JRadioButton();
@@ -88,18 +94,20 @@ public class AppFrame extends JFrame  {
         csvOption.addActionListener((arg0) -> {
             if(csvOption.isSelected()){
                 excelOption.setSelected(false);
+                delField.setVisible(true);
             }
             else{
                 excelOption.setSelected(true);
+                delField.setVisible(false);
             }
         });
-        
+
         contentPanel.add(excelOption);
         contentPanel.add(csvOption);
         contentPanel.add(inputLabel);
         contentPanel.add(inputButton);
         contentPanel.add(inputFolder);
-
+        contentPanel.add(delField);
 
         outputLabel = new JLabel("Output Folder:");
         outputLabel.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -167,6 +175,9 @@ public class AppFrame extends JFrame  {
                 String inputpath = inputFolder.getText(); 
                 String outputpath = outputFolder.getText();    
                 String dbname = dbField.getText();
+                char delimiter = '~';
+                if (!delField.getText().isBlank()) delimiter=delField.getText().trim().charAt(0);
+                
                 String dbpath = new File(outputpath, dbname).getAbsolutePath();
                 File dir = new File(inputpath);
                 if (excelOption.isSelected()){
@@ -187,7 +198,7 @@ public class AppFrame extends JFrame  {
                     }
                     else{
                         system_offline();
-                        char delimiter = 'æ';
+                        
                         result = DbLoad.run_csv(files, dbpath, delimiter);
                         system_online();
                     }
@@ -232,10 +243,15 @@ public class AppFrame extends JFrame  {
                inputFolder2.setText("");
             }
         });
+
+        delField2 = new JTextField("~");
+        delField2.setSize(30, 30);
+        delField2.setLocation(550, 350);
+
         contentPanel.add(inputLabel2);
         contentPanel.add(inputFolder2);
         contentPanel.add(inputButton2);
-
+        contentPanel.add(delField2);
 
         outputLabel2 = new JLabel("Output Folder:");
         outputLabel2.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -308,12 +324,14 @@ public class AppFrame extends JFrame  {
             }
             else{
                 int result = -1;
+                char delimiter = '~';
+                if (!delField2.getText().isBlank()) delimiter=delField2.getText().trim().charAt(0);
                 String inputpath = inputFolder2.getText(); 
                 String outputfolder = outputFolder2.getText();    
                 String dbpath = dbField2.getText();
                 File file = new File(inputpath);
                 system_offline();
-                result = DbRead.run_queries(file, outputfolder, dbpath);
+                result = DbRead.run_queries(file, outputfolder, dbpath, delimiter);
                 system_online();
                 if (result >= 0){
                     JOptionPane.showMessageDialog(this, "Action Completed");
