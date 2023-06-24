@@ -145,7 +145,7 @@ public class AppFrame extends JFrame  {
         dbLabel.setLocation(100, 180);
 
         dbField = new JTextField();
-        dbField.setText("Test.db");
+        dbField.setText("TestDB");
         dbField.setFont(new Font("Arial", Font.PLAIN, 20));
         dbField.setSize(190, 30);
         dbField.setLocation(250, 180);
@@ -299,7 +299,7 @@ public class AppFrame extends JFrame  {
         dbButton.setLocation(450, 450);
         dbButton.addActionListener((arg0) ->{
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int option = fileChooser.showOpenDialog(contentPanel);
             if(option == JFileChooser.APPROVE_OPTION){
                 File file = fileChooser.getSelectedFile();

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.dhatim.fastexcel.reader.Cell;
@@ -101,19 +102,27 @@ public class DbLoad {
 		List<List<String>> colvals = data.subList(1, data.size());
         header = header.stream().map(e -> e.trim().replace(" ","_").toUpperCase()).toList(); 
         header = fix_header(header);        
-    
-        Class.forName("org.sqlite.JDBC");
-        var conn = DriverManager.getConnection("jdbc:sqlite:"+dbpath);
-        String create_stmt = "CREATE TABLE IF NOT EXISTS "+filename+"("
-                                + String.join(" TEXT,", header) + " TEXT );";
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+        var conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";create=true");
+        String create_stmt = "CREATE TABLE "+filename+"("
+                                + String.join(" VARCHAR(4000),", header) + " VARCHAR(4000))";
         var stmt = conn.createStatement();
-        stmt.executeUpdate(create_stmt);
-        logger.info(String.format("Table %s Created", filename));
+        try{
+            stmt.executeUpdate(create_stmt);
+            logger.info(String.format("Table %s Created", filename));
+        }
+        catch(SQLException e){
+            logger.error(String.format("Table %s already exists", filename));
+        }
         int count = 0;
         for (List<String> row: colvals){
             if (row.size()!=0){
-                List<String> rowval = row.stream().map(e -> String.format("\"%s\"",e)).toList();
-                String insert_stmt = "INSERT INTO "+filename+" VALUES (" + String.join(",", rowval) + " );";
+                String rowvalStr = row.stream()
+                                        .map(s -> String.format("\'%s\'", s))
+                                        .collect(Collectors.joining(","));
+                String insert_stmt = "INSERT INTO "+filename+" ("+
+                                            String.join(",", header)+")"+    
+                                            " VALUES (" + rowvalStr + " )";
                 try{
                     stmt.execute(insert_stmt);
                     count++;
@@ -125,7 +134,6 @@ public class DbLoad {
         logger.info(String.format("Inserted %d rows", count));
         stmt.close();
         conn.close();
-        
     }
 
 
@@ -138,7 +146,7 @@ public class DbLoad {
                 writeToDB(file.getAbsolutePath(), dbpath, data);
             }
             catch(IOException | ClassNotFoundException | SQLException err){
-                logger.error(String.format("%s cannot be processed.", file.getName()));
+                logger.error(String.format("%s cannot be processed.", file.getName()), err);
                 logger.error(err.getMessage());
                 result = 0;
             } 
@@ -156,7 +164,7 @@ public class DbLoad {
                 writeToDB(file.getAbsolutePath(), dbpath, data);
             }
             catch( IOException | CsvValidationException | SQLException | ClassNotFoundException err){
-                logger.error(String.format("%s cannot be processed.", file.getName()),err);
+                logger.error(String.format("%s cannot be processed.", file.getName()), err);
                 result = 0;
             }
         }

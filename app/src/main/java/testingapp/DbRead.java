@@ -2,7 +2,6 @@ package testingapp;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,8 +21,8 @@ public class DbRead {
         
         int result = 1;
         try{
-            Class.forName("org.sqlite.JDBC");
-            var conn = DriverManager.getConnection("jdbc:sqlite:"+dbpath);
+            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+            var conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";");
             var stmt = conn.createStatement();
 
             Scanner sqlReader = new Scanner(file);
