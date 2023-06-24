@@ -28,7 +28,7 @@ public class AppFrame extends JFrame  {
 
     public AppFrame() {
         setTitle("APP");
-        setBounds(300, 90, 900, 600);
+        setBounds(300, 90, 800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
 
