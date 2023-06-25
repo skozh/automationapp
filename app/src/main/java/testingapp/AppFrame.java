@@ -19,12 +19,14 @@ import org.slf4j.LoggerFactory;
 public class AppFrame extends JFrame  {
 
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
+    private static char DEFAULT_DELIMITER = '~';
     private Container contentPanel;
     private JLabel title, inputLabel, outputLabel, dbLabel, busyLabel, title2, inputLabel2, outputLabel2 ,dbLabel2;
     private JTextField inputFolder, outputFolder, dbField, inputFolder2, outputFolder2, dbField2, delField, delField2;
     private JButton inputButton, outputButton, submitButton, inputButton2, outputButton2, dbButton,submitButton2;
     private JRadioButton excelOption, csvOption;
     private ImageIcon redIcon;
+
 
     public AppFrame() {
         setTitle("APP");
@@ -68,7 +70,7 @@ public class AppFrame extends JFrame  {
             }
         });
 
-        delField = new JTextField("~");
+        delField = new JTextField(""+DEFAULT_DELIMITER);
         delField.setSize(30, 30);
         delField.setLocation(700, 80);
 
@@ -167,7 +169,7 @@ public class AppFrame extends JFrame  {
         submitButton.setSize(120, 30);
         submitButton.setLocation(200, 230);
         submitButton.addActionListener((arg0) ->{
-            if (inputFolder.getText().isBlank() || outputFolder.getText().isBlank() || dbField.getText().isBlank()){
+            if (inputFolder.getText().chars().allMatch(Character::isWhitespace) || outputFolder.getText().chars().allMatch(Character::isWhitespace) || dbField.getText().chars().allMatch(Character::isWhitespace)){
                 JOptionPane.showMessageDialog(this, "Enter all the fields");
             }
             else{
@@ -175,8 +177,8 @@ public class AppFrame extends JFrame  {
                 String inputpath = inputFolder.getText(); 
                 String outputpath = outputFolder.getText();    
                 String dbname = dbField.getText();
-                char delimiter = '~';
-                if (!delField.getText().isBlank()) delimiter=delField.getText().trim().charAt(0);
+                char delimiter = DEFAULT_DELIMITER;
+                if (!delField.getText().chars().allMatch(Character::isWhitespace)) delimiter=delField.getText().trim().charAt(0);
                 
                 String dbpath = new File(outputpath, dbname).getAbsolutePath();
                 File dir = new File(inputpath);
@@ -244,7 +246,7 @@ public class AppFrame extends JFrame  {
             }
         });
 
-        delField2 = new JTextField("~");
+        delField2 = new JTextField(""+DEFAULT_DELIMITER);
         delField2.setSize(30, 30);
         delField2.setLocation(550, 350);
 
@@ -319,13 +321,13 @@ public class AppFrame extends JFrame  {
         submitButton2.setSize(120, 30);
         submitButton2.setLocation(200, 500);
         submitButton2.addActionListener((arg0) ->{
-            if (inputFolder2.getText().isBlank() || dbField2.getText().isBlank() || outputFolder2.getText().isBlank()){
+            if (inputFolder2.getText().chars().allMatch(Character::isWhitespace) || dbField2.getText().chars().allMatch(Character::isWhitespace) || outputFolder2.getText().chars().allMatch(Character::isWhitespace)){
                 JOptionPane.showMessageDialog(this, "Enter all the fields");
             }
             else{
                 int result = -1;
-                char delimiter = '~';
-                if (!delField2.getText().isBlank()) delimiter=delField2.getText().trim().charAt(0);
+                char delimiter = DEFAULT_DELIMITER;
+                if (!delField2.getText().chars().allMatch(Character::isWhitespace)) delimiter=delField2.getText().trim().charAt(0);
                 String inputpath = inputFolder2.getText(); 
                 String outputfolder = outputFolder2.getText();    
                 String dbpath = dbField2.getText();

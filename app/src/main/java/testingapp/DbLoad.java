@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ import com.opencsv.exceptions.CsvValidationException;
 public class DbLoad {
 
     private static Logger logger = LoggerFactory.getLogger(DbLoad.class);
+    private static int DEFAULT_VARCHAR_SIZE=10000;
 
     public static List<List<String>> readExcel(String filepath) throws IOException{
 
@@ -94,26 +97,25 @@ public class DbLoad {
     }
 
 
-    public static void writeToDB(String filepath, String dbpath, 
+    public static void writeToDB(File fpath, String dbpath, 
                                 List<List<String>> data ) throws SQLException, ClassNotFoundException{
 
         String filename = fpath.getName().split("\\.", 2)[0].replace("-","_");
 
         List<String> header = data.get(0);
 		List<List<String>> colvals = data.subList(1, data.size());
-        header = header.stream().map(e -> e.trim().replace(" ","_").toUpperCase()).toList(); 
-        header = fix_header(header);        
+        header = fix_header(header.stream().map(e -> e.trim().replace(" ","_").toUpperCase()).collect(Collectors.toList())); 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        var conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";create=true");
+        Connection conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";create=true");
         String create_stmt = "CREATE TABLE "+filename+"("
-                                + String.join(" VARCHAR(4000),", header) + " VARCHAR(4000))";
-        var stmt = conn.createStatement();
+                                + String.join(String.format(" VARCHAR(%d),",DEFAULT_VARCHAR_SIZE), header) + String.format(" VARCHAR(%d))",DEFAULT_VARCHAR_SIZE);
+        Statement stmt = conn.createStatement();
         try{
             stmt.executeUpdate(create_stmt);
             logger.info(String.format("Table %s Created", filename));
         }
         catch(SQLException e){
-            logger.error(String.format("Table %s already exists", filename));
+            logger.warn(String.format("Table %s might be already present. Please check.", filename));
         }
         int count = 0;
         for (List<String> row: colvals){

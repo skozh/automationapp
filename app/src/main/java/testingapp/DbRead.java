@@ -2,9 +2,11 @@ package testingapp;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 import org.slf4j.Logger;
@@ -22,8 +24,8 @@ public class DbRead {
         int result = 1;
         try{
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            var conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";");
-            var stmt = conn.createStatement();
+            Connection conn = DriverManager.getConnection("jdbc:derby:"+dbpath+";");
+            Statement stmt = conn.createStatement();
 
             Scanner sqlReader = new Scanner(file);
             while (sqlReader.hasNextLine()) {
