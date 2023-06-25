@@ -97,7 +97,6 @@ public class DbLoad {
     public static void writeToDB(String filepath, String dbpath, 
                                 List<List<String>> data ) throws SQLException, ClassNotFoundException{
 
-        File fpath = new File(filepath);
         String filename = fpath.getName().split("\\.", 2)[0].replace("-","_");
 
         List<String> header = data.get(0);
@@ -145,7 +144,7 @@ public class DbLoad {
         for (File file: files){
             try{
                 List<List<String>> data = readExcel(file.getAbsolutePath());
-                writeToDB(file.getAbsolutePath(), dbpath, data);
+                writeToDB(file, dbpath, data);
             }
             catch(IOException | ClassNotFoundException | SQLException err){
                 logger.error(String.format("%s cannot be processed.", file.getName()), err);
@@ -163,7 +162,7 @@ public class DbLoad {
         for (File file: files){
             try{
                 List<List<String>> data = readCsv(file.getAbsolutePath(), delimiter);
-                writeToDB(file.getAbsolutePath(), dbpath, data);
+                writeToDB(file, dbpath, data);
             }
             catch( IOException | CsvValidationException | SQLException | ClassNotFoundException err){
                 logger.error(String.format("%s cannot be processed.", file.getName()), err);
