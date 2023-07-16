@@ -7,8 +7,17 @@ package testingapp.UI;
 import testingapp.Services.DbLoader;
 import testingapp.Services.RulesRunner;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import testingapp.Services.RulesBuilder;
 
 /**
  *
@@ -16,7 +25,12 @@ import javax.swing.JOptionPane;
  */
 public class MainPage extends javax.swing.JFrame {
     
-    final static char DEFAULT_DELIMITER = '~';
+    private final static Logger logger = LoggerFactory.getLogger(MainPage.class);
+    final static char DEFAULT_DELIMITER = '#';
+    private Map<String, List<String>> tableMap;
+    private final static String COMPLETENESS_SQL = "SELECT * FROM $TABLENAME WHERE $COLUMNNAME IS NULL OR $COLUMNNAME IN ('(NULL)','null','(null)');";
+    private final static String VALIDITY_SQL = "SELECT * FROM $TABLENAME WHERE $COLUMNNAME IS NOT NULL AND $COLUMNNAME NOT IN ('(NULL)','null','(null)') AND LENGTH($COLUMNNAME) < 10;";
+    private final static String OTHER_SQL = "SELECT * FROM $TABLENAME WHERE $COLUMNNAME = ?;";
     
     protected void system_busy(){
         this.jButton3.setEnabled(false);
@@ -26,12 +40,27 @@ public class MainPage extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Action Completed.");
         this.jButton3.setEnabled(true);
     }
+    
+    protected void change_query(int option){
+        switch(option){
+            case 1: 
+                this.jTextArea1.setText(COMPLETENESS_SQL);
+                break;
+            case 2:
+                this.jTextArea1.setText(VALIDITY_SQL);
+                break;
+            default:
+                this.jTextArea1.setText(OTHER_SQL);
+        }
+    }
 
     /**
      * Creates new form MainPage
      */
     public MainPage() {
         initComponents();
+        this.jTextArea1.setText(COMPLETENESS_SQL);
+        this.tableMap = new HashMap<>();
     }
 
     /**
@@ -44,6 +73,7 @@ public class MainPage extends javax.swing.JFrame {
     private void initComponents() {
 
         buttonGroup2 = new javax.swing.ButtonGroup();
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
@@ -73,6 +103,24 @@ public class MainPage extends javax.swing.JFrame {
         jTextField8 = new javax.swing.JTextField();
         jButton6 = new javax.swing.JButton();
         jButton7 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jTextField9 = new javax.swing.JTextField();
+        jButton8 = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        jButton9 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jRadioButton3 = new javax.swing.JRadioButton();
+        jRadioButton4 = new javax.swing.JRadioButton();
+        jRadioButton5 = new javax.swing.JRadioButton();
+        jButton10 = new javax.swing.JButton();
+        jButton11 = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jButton12 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -291,18 +339,206 @@ public class MainPage extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Rules", jPanel2);
 
+        jButton8.setText("Select");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+
+        jLabel10.setText("DB :");
+
+        jButton9.setText("Connect");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Table 1", "Table 2", "Table 3", "Table 4" }));
+        jComboBox1.setEnabled(false);
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Column 1", "Column 2", "Column 3", "Column 4", "Column 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jList1.setEnabled(false);
+        jScrollPane1.setViewportView(jList1);
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Noto Sans", 0, 12)); // NOI18N
+        jTextArea1.setForeground(new java.awt.Color(0, 0, 0));
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setRows(5);
+        jTextArea1.setWrapStyleWord(true);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        buttonGroup1.add(jRadioButton3);
+        jRadioButton3.setSelected(true);
+        jRadioButton3.setText("Completeness");
+        jRadioButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton3ActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(jRadioButton4);
+        jRadioButton4.setText("Validity");
+        jRadioButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton4ActionPerformed(evt);
+            }
+        });
+
+        buttonGroup1.add(jRadioButton5);
+        jRadioButton5.setText("Other");
+        jRadioButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton5ActionPerformed(evt);
+            }
+        });
+
+        jButton10.setText("Add");
+        jButton10.setEnabled(false);
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton10ActionPerformed(evt);
+            }
+        });
+
+        jButton11.setText("Remove");
+        jButton11.setEnabled(false);
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "RULE_ID", "RULE_SQL"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jTable1.setColumnSelectionAllowed(true);
+        jScrollPane3.setViewportView(jTable1);
+        jTable1.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+
+        jButton12.setText("Save");
+        jButton12.setEnabled(false);
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel10)
+                                .addGap(18, 18, 18)
+                                .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, 377, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton8)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton9))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jRadioButton4)
+                                    .addComponent(jRadioButton5)
+                                    .addComponent(jRadioButton3))
+                                .addGap(18, 18, 18)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jButton10)
+                                    .addComponent(jButton11)
+                                    .addComponent(jButton12))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(32, 32, 32)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 799, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(32, 32, 32)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton8)
+                    .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10)
+                    .addComponent(jButton9))
+                .addGap(34, 34, 34)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(jPanel3Layout.createSequentialGroup()
+                            .addComponent(jRadioButton3)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jRadioButton4)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jRadioButton5))
+                        .addComponent(jScrollPane2))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(jButton10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton11)
+                        .addGap(3, 3, 3)
+                        .addComponent(jButton12)))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jRadioButton4.getAccessibleContext().setAccessibleParent(jPanel3);
+        jRadioButton5.getAccessibleContext().setAccessibleParent(jPanel3);
+
+        jTabbedPane1.addTab("Builder", jPanel3);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 363, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(285, 285, 285))
             .addGroup(layout.createSequentialGroup()
-                .addGap(80, 80, 80)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(302, 302, 302)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 363, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(80, 80, 80)
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 800, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(171, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -311,7 +547,7 @@ public class MainPage extends javax.swing.JFrame {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 508, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(460, Short.MAX_VALUE))
         );
 
         pack();
@@ -457,6 +693,146 @@ public class MainPage extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton7ActionPerformed
 
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int option = fileChooser.showOpenDialog(jPanel3);
+        if(option == JFileChooser.APPROVE_OPTION){
+            File file = fileChooser.getSelectedFile();
+            jTextField9.setText(file.getAbsolutePath());
+        }
+        else{
+            jTextField9.setText("");
+        }
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        // TODO add your handling code here:
+        this.tableMap = null;
+        this.jComboBox1.setEnabled(false);
+        this.jButton10.setEnabled(false);
+        this.jButton11.setEnabled(false);
+        this.jButton12.setEnabled(false);
+        if (jTextField9.getText().chars().allMatch(Character::isWhitespace)){
+            JOptionPane.showMessageDialog(this, "Select the DB file.");
+        }
+        else{
+            String dbfilepath = jTextField9.getText().trim();
+            RulesBuilder dbinfo = new RulesBuilder(dbfilepath);
+            this.tableMap = dbinfo.getTableMap();
+            if (this.tableMap != null){
+                this.jComboBox1.removeAllItems();
+                for (String tablename : this.tableMap.keySet()){
+                    this.jComboBox1.addItem(tablename);
+                }
+                this.jComboBox1.setEnabled(true);
+                this.jButton10.setEnabled(true);
+                this.jButton11.setEnabled(true);
+                this.jButton12.setEnabled(true);
+            }
+            else{
+                JOptionPane.showMessageDialog(this, "No tables found!");  
+            }
+        }
+    }//GEN-LAST:event_jButton9ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+        try{
+            if(this.jComboBox1.getSelectedItem() != null){
+                String tablename = this.jComboBox1.getSelectedItem().toString();
+                List<String> columnList = this.tableMap.get(tablename);
+                if (!columnList.isEmpty()){
+                    DefaultListModel<String> listModel1 = new DefaultListModel<>();
+                    int counter=0;
+                    for (String column : columnList){
+                        listModel1.add(counter, column);
+                        counter++;
+                    }
+                    this.jList1.setModel(listModel1);
+                    this.jList1.setEnabled(true);
+                }
+                else{
+                    this.jList1.setEnabled(false);
+                }
+            }
+        }catch(Exception ex){
+            logger.error(ex.getMessage());
+        }            
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton3ActionPerformed
+        // TODO add your handling code here:
+        change_query(1);
+    }//GEN-LAST:event_jRadioButton3ActionPerformed
+
+    private void jRadioButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton4ActionPerformed
+        // TODO add your handling code here:
+        change_query(2);
+    }//GEN-LAST:event_jRadioButton4ActionPerformed
+
+    private void jRadioButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton5ActionPerformed
+        // TODO add your handling code here:
+        change_query(3);
+    }//GEN-LAST:event_jRadioButton5ActionPerformed
+
+    private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
+        // TODO add your handling code here:
+        String tablename = jComboBox1.getSelectedItem().toString();
+        List<String> columns = jList1.getSelectedValuesList();
+        
+        if (columns.isEmpty()){
+            JOptionPane.showMessageDialog(this, "No columns selected.");
+        }
+        else{
+            DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+            int rowcount = tableModel.getRowCount();
+            List<String> current_queries = new ArrayList<>();
+            if (rowcount != 0){
+                for (int i=0; i<rowcount; i++){
+                    current_queries.add(tableModel.getValueAt(i, 1).toString());
+                }
+            }
+            String raw_query = jTextArea1.getText().trim();
+            rowcount += 1;
+            for (String column : columns){
+                String final_query = raw_query.replace("$TABLENAME", tablename).replace("$COLUMNNAME", column);
+                String row_id = "RULE_"+rowcount;
+                if (!current_queries.contains(final_query)){
+                    Object[] row = new Object[] {row_id, final_query};
+                    tableModel.addRow(row);
+                    rowcount++;
+                }
+            }
+        }
+        
+        
+    }//GEN-LAST:event_jButton10ActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+        int rowselected = this.jTable1.getSelectedRow();
+        if (rowselected != -1){
+            tableModel.removeRow(rowselected);
+        }
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+        // TODO add your handling code here:
+        String FILEPATH = "rules.csv";
+        DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+        List<String> data = new ArrayList<>();
+        while ((tableModel.getRowCount())!=0){
+            String row = tableModel.getValueAt(0, 0).toString() + DEFAULT_DELIMITER + tableModel.getValueAt(0, 1);
+            data.add(row);
+            tableModel.removeRow(0);
+        }
+        RulesBuilder.writeToFile(data, FILEPATH);
+        JOptionPane.showMessageDialog(this, "Action Completed.");
+    }//GEN-LAST:event_jButton12ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -493,15 +869,23 @@ public class MainPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
+    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -510,11 +894,21 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JList<String> jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JRadioButton jRadioButton3;
+    private javax.swing.JRadioButton jRadioButton4;
+    private javax.swing.JRadioButton jRadioButton5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
@@ -523,5 +917,6 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;
     private javax.swing.JTextField jTextField8;
+    private javax.swing.JTextField jTextField9;
     // End of variables declaration//GEN-END:variables
 }

@@ -63,3 +63,7 @@ task fatJar(type: Jar) {
 tasks.withType(Jar.class).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked"
+}
